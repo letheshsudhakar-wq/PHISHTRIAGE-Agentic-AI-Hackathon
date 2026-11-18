@@ -1,0 +1,384 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PhishGuard</title>
+
+    <style>
+        :root {
+            color-scheme: dark;
+            --page: #080f1d;
+            --surface: #111d30;
+            --surface-raised: #17263d;
+            --border: #263852;
+            --text: #e8eef8;
+            --muted: #9aacc4;
+            --blue: #4b8cff;
+            --blue-bright: #3478f6;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            max-width: 560px;
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 20px 18px 16px;
+            background:
+                radial-gradient(ellipse at 50% -18%, #163056 0, transparent 48%),
+                var(--page);
+            color: var(--text);
+            font-family: Inter, "Segoe UI", Arial, sans-serif;
+            font-size: 14px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 22px;
+        }
+
+        .logo {
+            display: grid;
+            width: 46px;
+            height: 46px;
+            flex: 0 0 46px;
+            place-items: center;
+            border: 1px solid #4986f4;
+            border-radius: 14px;
+            background: linear-gradient(145deg, #2465dc, #1745a5);
+            box-shadow: 0 8px 22px #0e3c9b55;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+        }
+
+        h1 {
+            color: #f3f7ff;
+            margin: 0;
+            font-size: clamp(20px, 5vw, 23px);
+            letter-spacing: -0.035em;
+        }
+
+        .subtitle {
+            margin: 5px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .box {
+            min-width: 0;
+            margin-top: 16px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: linear-gradient(155deg, #142239, var(--surface) 68%);
+            box-shadow: 0 12px 30px #02081740;
+        }
+
+        .gmail-help {
+            margin-top: 8px;
+        }
+
+        .method-divider {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 18px 0;
+            color: #8295af;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+        }
+
+        .method-divider::before,
+        .method-divider::after {
+            height: 1px;
+            flex: 1;
+            background: #2b3c55;
+            content: "";
+        }
+
+        h3 {
+            margin: 0 0 14px;
+            color: #f3f7ff;
+            font-size: 15px;
+            letter-spacing: -0.01em;
+        }
+
+        input[type="file"] {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            margin: 9px 0 16px;
+            padding: 8px;
+            overflow: hidden;
+            border: 1px dashed #3b506f;
+            border-radius: 10px;
+            background: #0b1526;
+            color: #b6c5d9;
+            font: inherit;
+            font-size: 12px;
+        }
+
+        input[type="file"]::file-selector-button {
+            margin-right: 10px;
+            padding: 7px 10px;
+            border: 1px solid #3c5a85;
+            border-radius: 7px;
+            background: #1b3152;
+            color: #e6efff;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: #25436d;
+        }
+
+        textarea {
+            display: block;
+            width: 100%;
+            min-width: 0;
+            min-height: 130px;
+            height: 150px;
+            max-height: 260px;
+            margin-top: 8px;
+            padding: 12px;
+            border: 1px solid #354b68;
+            border-radius: 10px;
+            outline: none;
+            background: #091322;
+            color: #e4ecf8;
+            font: 13px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
+            resize: vertical;
+            transition: border-color 140ms ease, box-shadow 140ms ease;
+        }
+
+        textarea::placeholder {
+            color: #71839b;
+        }
+
+        textarea:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px #3478f626;
+        }
+
+        button {
+            min-height: 46px;
+            margin-top: 14px;
+            padding: 12px 16px;
+            border: 1px solid #5b97ff;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #3478f6, #2563d9);
+            box-shadow: 0 7px 18px #1455c433;
+            color: #fff;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+            width: 100%;
+        }
+
+        button:hover {
+            filter: brightness(1.09);
+            box-shadow: 0 9px 22px #1455c455;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .gmail-button {
+            border-color: #3b5f93;
+            background: linear-gradient(135deg, #1d3454, #172943);
+            box-shadow: none;
+            color: #dce9ff;
+        }
+
+        .gmail-button:hover {
+            background: linear-gradient(135deg, #27456d, #1c3455);
+            box-shadow: 0 7px 18px #02081755;
+        }
+
+        button:focus-visible,
+        input[type="file"]:focus-visible {
+            outline: 2px solid #8bb8ff;
+            outline-offset: 3px;
+        }
+
+        #result {
+            min-width: 0;
+            color: #c5d2e4;
+            font-size: 13px;
+            line-height: 1.65;
+            overflow-wrap: anywhere;
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            min-height: 30px;
+            align-items: center;
+            padding: 5px 11px;
+            border: 1px solid transparent;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.055em;
+        }
+
+        .risk-phishing {
+            border-color: #ef626866;
+            background: #7f1d2a;
+            color: #ffe0e2;
+        }
+
+        .risk-suspicious {
+            border-color: #e2b34166;
+            background: #624616;
+            color: #fff0b3;
+        }
+
+        .risk-safe {
+            border-color: #4bc88b66;
+            background: #14533d;
+            color: #d3ffea;
+        }
+
+        .risk-unknown {
+            border-color: #52647e;
+            background: #26364d;
+            color: #e2e8f0;
+        }
+
+        .result-score {
+            margin: 12px 0 18px;
+            padding: 11px 12px;
+            border: 1px solid #2e4564;
+            border-left: 3px solid var(--blue);
+            border-radius: 9px;
+            background: #0c192b;
+            color: #f0f5ff;
+            font-size: 16px;
+            font-weight: 750;
+            letter-spacing: -0.015em;
+        }
+
+        .summary-heading {
+            margin: 0 0 5px;
+            color: #eaf1fc;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .summary-text {
+            margin: 0;
+            color: #aebed3;
+            line-height: 1.65;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin: -4px 0 12px;
+            color: #99adca;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+        }
+
+        .status::before {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #45d69a;
+            box-shadow: 0 0 9px #45d69a88;
+            content: "";
+        }
+
+        .footer {
+            padding: 18px 0 4px;
+            color: #70829b;
+            font-size: 10px;
+            letter-spacing: 0.02em;
+            text-align: center;
+        }
+
+        @media (max-width: 360px) {
+            body {
+                padding: 16px 12px 12px;
+            }
+
+            .box {
+                padding: 15px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="logo" aria-hidden="true">PG</div>
+        <div>
+            <h1>PhishGuard</h1>
+            <p class="subtitle">AI-Powered Email Security</p>
+        </div>
+    </div>
+
+    <div class="box">
+        <h3>Analyze an Email</h3>
+
+        <button id="analyzeGmailBtn" class="gmail-button" type="button">
+            Analyze Open Gmail Email
+        </button>
+        <p class="subtitle gmail-help">Open a message in Gmail, then analyze it here.</p>
+
+        <div class="method-divider">OR UPLOAD / PASTE</div>
+
+        <p class="subtitle">Upload a suspicious .eml file</p>
+        <input type="file" id="emailFile" accept=".eml">
+
+        <p class="subtitle">OR paste email content below</p>
+
+        <textarea id="emailText"
+            placeholder="Paste suspicious email content here..."></textarea>
+
+        <button id="analyzeBtn">Analyze Email</button>
+    </div>
+
+    <div class="box">
+        <h3>Investigation Results</h3>
+        <p class="status">Analysis Output</p>
+        <div id="result">No email analyzed yet.</div>
+    </div>
+
+    <div class="footer">
+        PhishGuard | Intelligent Email Threat Detection
+    </div>
+
+    <script src="sidepanel.js"></script>
+
+</body>
+</html>
