@@ -1,0 +1,17 @@
+From: "Weekly Engineering Newsletter" <digest@trusted-newsletter.org>
+To: subscriber@enterprise.corp
+Subject: Weekly Engineering Digest #142: Modern Systems Architecture
+Date: Wed, 18 Nov 2026 17:00:00 +0000
+Message-ID: <tc07-legit@trusted-newsletter.org>
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+Authentication-Results: mx.enterprise.corp; spf=pass (trusted-newsletter.org: 192.0.2.1); dkim=pass (header.i=@trusted-newsletter.org); dmarc=pass (p=reject) header.from=trusted-newsletter.org
+
+<html>
+<body>
+<h2>Engineering Digest #142</h2>
+<p>Welcome to this week's edition. Today we explore asynchronous pipelines, deterministic state machines, and safe link handling.</p>
+<p>Read the featured articles on our blog: <a href="https://trusted-newsletter.org/articles/142">Read Full Digest</a></p>
+<p>You received this because you subscribed to weekly developer updates. <a href="https://trusted-newsletter.org/unsubscribe">Unsubscribe</a></p>
+</body>
+</html>

@@ -1,0 +1,19 @@
+From: "Microsoft Support" <support@micros0ft.com>
+To: victim@enterprise.corp
+Reply-To: attacker-inbox@stealth-forwarder.org
+Subject: Urgent: Verify Your Microsoft 365 Credentials
+Date: Wed, 18 Nov 2026 10:15:00 +0000
+Message-ID: <tc01-lookalike@micros0ft.com>
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+Authentication-Results: mx.enterprise.corp; spf=softfail (sender IP 198.51.100.24 is not designated); dkim=neutral
+
+<html>
+<body>
+<p>Dear Valued User,</p>
+<p>Your Microsoft 365 enterprise account access will be terminated within 24 hours due to missing security verification.</p>
+<p>Please confirm your account immediately: <a href="https://micros0ft.com/login">Sign in to Microsoft 365</a></p>
+<p>If you fail to act, your cloud inbox and SharePoint access will be deactivated.</p>
+<p>Microsoft Security & Accounts Team</p>
+</body>
+</html>

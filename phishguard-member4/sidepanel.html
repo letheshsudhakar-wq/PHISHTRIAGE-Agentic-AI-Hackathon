@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhishTriage - AI Defense Console</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-dark: #0a0f1d;
+      --bg-surface: #111a2e;
+      --bg-surface-raised: #18253f;
+      --border-color: #263852;
+      --border-highlight: #3b82f6;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --primary-blue: #3b82f6;
+      --primary-blue-hover: #2563eb;
+      --danger-red: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --danger-border: #f87171;
+      --warning-amber: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --warning-border: #fbbf24;
+      --success-green: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --success-border: #34d399;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: radial-gradient(circle at top, #162444 0%, var(--bg-dark) 55%);
+      color: var(--text-main);
+      font-family: var(--font-family);
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 16px;
+      min-width: 360px;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 16px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .icon-btn:hover {
+      color: #fff;
+      border-color: var(--primary-blue);
+    }
+
+    /* Backend Config Drawer */
+    #configDrawer {
+      display: none;
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+
+    .config-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .config-input {
+      flex: 1;
+      background: #090e1a;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: #fff;
+      padding: 6px 10px;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .config-input:focus {
+      border-color: var(--primary-blue);
+    }
+
+    /* Section Cards */
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #cbd5e1;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-color);
+      color: #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #203152;
+      border-color: #3b82f6;
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+    }
+
+    /* Drop Zone */
+    .dropzone {
+      border: 2px dashed #334155;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(15, 23, 42, 0.5);
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--primary-blue);
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .dropzone-icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .dropzone-text {
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .dropzone-sub {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    /* Textarea */
+    textarea {
+      width: 100%;
+      background: #090e1a;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      color: #e2e8f0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      resize: vertical;
+      min-height: 80px;
+      margin-top: 8px;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+    }
+
+    /* Real-Time Stepper */
+    .stepper {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-color);
+      font-size: 12px;
+    }
+
+    .step-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      background: #334155;
+      color: #94a3b8;
+    }
+
+    .step-item.active {
+      border-color: var(--primary-blue);
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .step-item.active .step-icon {
+      background: var(--primary-blue);
+      color: #fff;
+      animation: pulse 1.5s infinite;
+    }
+
+    .step-item.done {
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .step-item.done .step-icon {
+      background: var(--success-green);
+      color: #fff;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5); }
+      70% { box-shadow: 0 0 0 8px rgba(59, 130, 246, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+    }
+
+    .trace-log {
+      max-height: 110px;
+      overflow-y: auto;
+      background: #060913;
+      border: 1px solid #1e293b;
+      border-radius: 6px;
+      padding: 8px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: 10px;
+    }
+
+    .trace-entry {
+      margin-bottom: 4px;
+    }
+
+    .trace-entry span.time {
+      color: #475569;
+    }
+
+    /* Verdict Display */
+    .verdict-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      border: 1px solid;
+    }
+
+    .verdict-banner.phishing {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: #fca5a5;
+    }
+
+    .verdict-banner.suspicious {
+      background: var(--warning-bg);
+      border-color: var(--warning-border);
+      color: #fde68a;
+    }
+
+    .verdict-banner.safe {
+      background: var(--success-bg);
+      border-color: var(--success-border);
+      color: #a7f3d0;
+    }
+
+    .verdict-score-wrap {
+      text-align: right;
+    }
+
+    .score-num {
+      font-size: 26px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .verdict-badge {
+      display: inline-block;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    .critic-pill {
+      display: inline-block;
+      background: #475569;
+      color: #f8fafc;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    .summary-box {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      background: rgba(15, 23, 42, 0.4);
+      padding: 10px;
+      border-radius: 8px;
+      border-left: 3px solid var(--primary-blue);
+    }
+
+    /* Indicator Cards */
+    .indicator-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .indicator-card {
+      background: var(--bg-surface-raised);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .indicator-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .indicator-title {
+      font-weight: 600;
+      color: #fff;
+      font-size: 12px;
+    }
+
+    .weight-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+
+    .weight-pill.pos {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .weight-pill.neg {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34d399;
+    }
+
+    .indicator-explanation {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+      line-height: 1.45;
+    }
+
+    /* Link Shield */
+    .link-shield-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .defanged-link {
+      background: #090e1a;
+      border: 1px solid #334155;
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #38bdf8;
+      word-break: break-all;
+      user-select: all;
+    }
+
+    /* Simulator */
+    .sim-step {
+      display: flex;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px dashed #263852;
+      font-size: 12px;
+    }
+
+    .sim-step:last-child {
+      border-bottom: none;
+    }
+
+    .sim-num {
+      width: 22px;
+      height: 22px;
+      background: #1e293b;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-blue);
+      flex-shrink: 0;
+    }
+
+    /* Action Governance Box */
+    .gov-box {
+      border: 1px solid var(--danger-border);
+      background: var(--danger-bg);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+
+    .gov-title {
+      font-weight: 700;
+      color: #f87171;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .gov-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    /* Co-Pilot Chat */
+    .chat-box {
+      max-height: 160px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 8px;
+      background: #060913;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .chat-msg {
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      line-height: 1.4;
+      max-width: 90%;
+    }
+
+    .chat-msg.user {
+      align-self: flex-end;
+      background: #1e3a8a;
+      color: #eff6ff;
+    }
+
+    .chat-msg.bot {
+      align-self: flex-start;
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #10b981;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand-wrap">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        <h1 class="brand-title">PhishTriage</h1>
+        <p class="brand-subtitle">AI Defense & Investigation Console</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="toggleConfigBtn" class="icon-btn" title="Backend Settings">⚙️</button>
+      <button id="openOptionsBtn" class="icon-btn" title="Open SOC Analyst Console">📊</button>
+    </div>
+  </header>
+
+  <!-- Backend Config Drawer -->
+  <div id="configDrawer">
+    <div style="font-size:11px; color:#cbd5e1; font-weight:600;">BACKEND API BASE URL</div>
+    <div class="config-row">
+      <input type="text" id="backendUrlInput" class="config-input" value="http://localhost:8000" placeholder="http://localhost:8000">
+      <button id="saveConfigBtn" class="btn btn-secondary" style="width:auto; padding:6px 12px;">Save</button>
+    </div>
+    <div id="connectionStatus" style="font-size:11px; margin-top:6px; color:#94a3b8;">Status: Checking...</div>
+  </div>
+
+  <!-- Ingestion Card -->
+  <section class="card" id="ingestSection">
+    <div class="card-title">
+      <span>1. Ingest Email</span>
+      <span style="font-size:11px; font-weight:normal; color:#64748b;">RFC 822</span>
+    </div>
+
+    <button id="analyzeGmailBtn" class="btn btn-secondary" type="button" style="margin-bottom:10px;">
+      📬 Scan Open Gmail Message
+    </button>
+
+    <div class="dropzone" id="dropZone">
+      <div class="dropzone-icon">📁</div>
+      <div class="dropzone-text"><strong>Drag & Drop .eml file</strong> or click to browse</div>
+      <div class="dropzone-sub">Supports raw RFC 822 email files</div>
+      <input type="file" id="fileInput" accept=".eml" style="display:none;">
+    </div>
+
+    <div style="margin-top:12px;">
+      <details>
+        <summary style="font-size:11px; color:#94a3b8; cursor:pointer;">Or paste raw email text / headers</summary>
+        <textarea id="rawEmailText" placeholder="Paste raw RFC 822 headers and body text here..."></textarea>
+      </details>
+    </div>
+
+    <button id="analyzeBtn" class="btn btn-primary" type="button" style="margin-top:12px;">
+      🚀 Start Multi-Agent Triage
+    </button>
+  </section>
+
+  <!-- Live SSE Stepper & Trace Card -->
+  <section class="card" id="stepperSection" style="display:none;">
+    <div class="card-title">
+      <span>2. Multi-Agent Pipeline Trace</span>
+      <span id="pipelineStatusBadge" style="font-size:11px; color:#3b82f6;">STREAMING</span>
+    </div>
+
+    <div class="stepper">
+      <div class="step-item" id="step-plan">
+        <div class="step-icon">1</div>
+        <div class="step-label">Orchestrator Execution Plan</div>
+      </div>
+      <div class="step-item" id="step-forensic">
+        <div class="step-icon">2</div>
+        <div class="step-label">Forensic Agent (Headers & Domains)</div>
+      </div>
+      <div class="step-item" id="step-vision">
+        <div class="step-icon">3</div>
+        <div class="step-label">Vision Agent (Brand & UI Inspection)</div>
+      </div>
+      <div class="step-item" id="step-critic">
+        <div class="step-icon">4</div>
+        <div class="step-label">Adversarial Critic (Injection & Contradictions)</div>
+      </div>
+      <div class="step-item" id="step-scoring">
+        <div class="step-icon">5</div>
+        <div class="step-label">Deterministic Scoring Engine</div>
+      </div>
+    </div>
+
+    <div class="trace-log" id="traceLog">
+      <div class="trace-entry"><span class="time">[INIT]</span> Awaiting SSE connection...</div>
+    </div>
+  </section>
+
+  <!-- Results Section -->
+  <section id="resultsSection" style="display:none;">
+
+    <!-- Verdict Card -->
+    <div class="card">
+      <div class="card-title">3. Investigation Verdict</div>
+      
+      <div id="verdictBanner" class="verdict-banner phishing">
+        <div>
+          <div id="verdictBadge" class="verdict-badge">PHISHING</div>
+          <div id="criticAdjustedBadge" class="critic-pill" style="display:none;">Critic Calibrated</div>
+        </div>
+        <div class="verdict-score-wrap">
+          <div style="font-size:10px; text-transform:uppercase;">Threat Score</div>
+          <div id="scoreDisplay" class="score-num">85 / 100</div>
+        </div>
+      </div>
+
+      <div id="summaryText" class="summary-box">
+        Analysis in progress...
+      </div>
+
+      <div id="limitationsBox" style="display:none; font-size:11px; color:#f59e0b; margin-top:8px;">
+        ⚠️ <strong>Note:</strong> <span id="limitationsText"></span>
+      </div>
+    </div>
+
+    <!-- Link Shield (Defanged URLs) -->
+    <div class="card" id="linkShieldCard">
+      <div class="card-title">
+        <span>Link Shield (Defanged URLs)</span>
+        <span style="font-size:11px; color:#10b981;">Non-Clickable / Safe</span>
+      </div>
+      <p style="font-size:11px; color:#94a3b8; margin-bottom:8px;">
+        Links neutralized via protocol replacement (<code style="color:#38bdf8;">hxxp://</code>) and domain defanging (<code style="color:#38bdf8;">[.]</code>).
+      </p>
+      <div id="defangedLinksList" class="link-shield-list">
+        <div style="color:#64748b; font-size:12px;">No external links extracted.</div>
+      </div>
+    </div>
+
+    <!-- Explainable AI Indicators -->
+    <div class="card">
+      <div class="card-title">
+        <span>Explainable AI Indicators</span>
+        <span id="indicatorCount" style="font-size:11px; color:#94a3b8;">0 signals</span>
+      </div>
+      <div id="indicatorsList" class="indicator-list">
+        <!-- Dynamic indicators -->
+      </div>
+    </div>
+
+    <!-- What-If Consequence Simulator -->
+    <div class="card">
+      <div class="card-title">
+        <span>What-If Consequence Simulator</span>
+        <span style="font-size:11px; color:#3b82f6;">Impact Chain</span>
+      </div>
+      <p style="font-size:11px; color:#94a3b8; margin-bottom:8px;">
+        Predicted chronological outcome if an employee trusted and interacted with this message:
+      </p>
+      <div id="whatIfList">
+        <!-- Dynamic steps -->
+      </div>
+    </div>
+
+    <!-- Quarantine Governance Staging -->
+    <div class="card" id="quarantineCard" style="display:none;">
+      <div class="card-title">Human-in-the-Loop Governance</div>
+      <div class="gov-box">
+        <div class="gov-title">🚨 Mandatory Action Staged: Mailbox Quarantine</div>
+        <p id="quarantineDetails" style="font-size:12px; color:#e2e8f0; margin-bottom:8px;"></p>
+        <div style="font-size:11px; color:#cbd5e1; margin-bottom:6px;">
+          Analyst Identifier:
+          <input type="text" id="analystIdInput" value="SOC-Analyst-1" class="config-input" style="display:inline-block; width:130px; margin-left:6px; padding:3px 6px;">
+        </div>
+        <div class="gov-actions">
+          <button id="approveQuarantineBtn" class="btn btn-danger" style="flex:1;">Approve Quarantine</button>
+          <button id="rejectQuarantineBtn" class="btn btn-secondary" style="flex:1;">Reject Proposal</button>
+        </div>
+        <div id="quarantineStatusFeedback" style="font-size:11px; margin-top:8px; font-weight:600;"></div>
+      </div>
+    </div>
+
+    <!-- Reporter Reply Draft -->
+    <div class="card">
+      <div class="card-title">Reporter Reply Draft</div>
+      <p style="font-size:11px; color:#94a3b8; margin-bottom:6px;">
+        Evidence-grounded response drafted for the reporting employee:
+      </p>
+      <textarea id="replyDraftText" style="min-height:120px; font-family:var(--font-family);"></textarea>
+      <div style="display:flex; gap:8px; margin-top:8px;">
+        <button id="copyReplyBtn" class="btn btn-secondary" style="flex:1;">📋 Copy Reply</button>
+        <button id="openMailtoBtn" class="btn btn-primary" style="flex:1;">✉️ Open in Mail (mailto:)</button>
+      </div>
+    </div>
+
+    <!-- Analyst Co-Pilot Chat -->
+    <div class="card">
+      <div class="card-title">SOC Analyst Co-Pilot</div>
+      <div id="chatBox" class="chat-box">
+        <div class="chat-msg bot">Hello Analyst! Ask any questions regarding this case's indicators, score, or evidence.</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" class="config-input" placeholder="e.g. Why was this marked as phishing?">
+        <button id="sendChatBtn" class="btn btn-primary" style="width:auto; padding:6px 14px;">Ask</button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">Reply copied to clipboard!</div>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

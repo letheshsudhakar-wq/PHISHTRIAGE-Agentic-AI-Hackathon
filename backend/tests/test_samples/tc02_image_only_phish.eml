@@ -1,0 +1,28 @@
+From: "IT Service Desk" <helpdesk@auth-notice-portal.net>
+To: employee@enterprise.corp
+Subject: Urgent: Mandatory Security Protocol Update Required
+Date: Wed, 18 Nov 2026 11:30:00 +0000
+Message-ID: <tc02-imageonly@auth-notice-portal.net>
+MIME-Version: 1.0
+Content-Type: multipart/related; boundary="----=_Part_TC02_Boundary"
+
+------=_Part_TC02_Boundary
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+
+<html>
+<body>
+<p><img src="cid:urgent_login_banner.png" alt="Scan QR or click below to verify identity"></p>
+<p><a href="http://portal-auth-session-update.net/login">Click here to complete authentication</a></p>
+</body>
+</html>
+
+------=_Part_TC02_Boundary
+Content-Type: image/png; name="urgent_login_banner.png"
+Content-Transfer-Encoding: base64
+Content-ID: <urgent_login_banner.png>
+Content-Disposition: inline; filename="urgent_login_banner.png"
+
+iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==
+
+------=_Part_TC02_Boundary--
