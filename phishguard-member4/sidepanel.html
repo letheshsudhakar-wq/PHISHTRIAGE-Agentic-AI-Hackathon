@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,7 +47,6 @@
       overflow-x: hidden;
     }
 
-    /* Header */
     .app-header {
       display: flex;
       align-items: center;
@@ -112,7 +112,6 @@
       border-color: var(--primary-blue);
     }
 
-    /* Backend Config Drawer */
     #configDrawer {
       display: none;
       background: var(--bg-surface-raised);
@@ -143,7 +142,6 @@
       border-color: var(--primary-blue);
     }
 
-    /* Section Cards */
     .card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
@@ -165,7 +163,6 @@
       justify-content: space-between;
     }
 
-    /* Buttons */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -213,7 +210,6 @@
       color: #fff;
     }
 
-    /* Drop Zone */
     .dropzone {
       border: 2px dashed #334155;
       border-radius: 10px;
@@ -246,7 +242,6 @@
       margin-top: 4px;
     }
 
-    /* Textarea */
     textarea {
       width: 100%;
       background: #090e1a;
@@ -266,7 +261,6 @@
       border-color: var(--primary-blue);
     }
 
-    /* Real-Time Stepper */
     .stepper {
       display: flex;
       flex-direction: column;
@@ -344,7 +338,6 @@
       color: #475569;
     }
 
-    /* Verdict Display */
     .verdict-banner {
       display: flex;
       align-items: center;
@@ -412,7 +405,6 @@
       border-left: 3px solid var(--primary-blue);
     }
 
-    /* Indicator Cards */
     .indicator-list {
       display: flex;
       flex-direction: column;
@@ -463,7 +455,6 @@
       line-height: 1.45;
     }
 
-    /* Link Shield */
     .link-shield-list {
       display: flex;
       flex-direction: column;
@@ -482,7 +473,6 @@
       user-select: all;
     }
 
-    /* Simulator */
     .sim-step {
       display: flex;
       gap: 10px;
@@ -509,7 +499,6 @@
       flex-shrink: 0;
     }
 
-    /* Action Governance Box */
     .gov-box {
       border: 1px solid var(--danger-border);
       background: var(--danger-bg);
@@ -531,7 +520,6 @@
       margin-top: 10px;
     }
 
-    /* Co-Pilot Chat */
     .chat-box {
       max-height: 160px;
       overflow-y: auto;
@@ -571,7 +559,6 @@
       gap: 6px;
     }
 
-    /* Toast Notification */
     .toast {
       position: fixed;
       bottom: 20px;
@@ -587,8 +574,17 @@
       display: none;
       z-index: 1000;
     }
+
+    /* Email input validation */
+    .validation-message {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      min-height: 17px;
+    }
   </style>
 </head>
+
 <body>
 
   <!-- Header -->
@@ -638,6 +634,9 @@
       <details>
         <summary style="font-size:11px; color:#94a3b8; cursor:pointer;">Or paste raw email text / headers</summary>
         <textarea id="rawEmailText" placeholder="Paste raw RFC 822 headers and body text here..."></textarea>
+        <p id="emailValidation" class="validation-message" aria-live="polite">
+          Accepted format: Raw email with headers and message body.
+        </p>
       </details>
     </div>
 
@@ -684,10 +683,9 @@
   <!-- Results Section -->
   <section id="resultsSection" style="display:none;">
 
-    <!-- Verdict Card -->
     <div class="card">
       <div class="card-title">3. Investigation Verdict</div>
-      
+
       <div id="verdictBanner" class="verdict-banner phishing">
         <div>
           <div id="verdictBadge" class="verdict-badge">PHISHING</div>
@@ -708,7 +706,7 @@
       </div>
     </div>
 
-    <!-- Link Shield (Defanged URLs) -->
+    <!-- Link Shield -->
     <div class="card" id="linkShieldCard">
       <div class="card-title">
         <span>Link Shield (Defanged URLs)</span>
@@ -728,9 +726,7 @@
         <span>Explainable AI Indicators</span>
         <span id="indicatorCount" style="font-size:11px; color:#94a3b8;">0 signals</span>
       </div>
-      <div id="indicatorsList" class="indicator-list">
-        <!-- Dynamic indicators -->
-      </div>
+      <div id="indicatorsList" class="indicator-list"></div>
     </div>
 
     <!-- What-If Consequence Simulator -->
@@ -742,12 +738,10 @@
       <p style="font-size:11px; color:#94a3b8; margin-bottom:8px;">
         Predicted chronological outcome if an employee trusted and interacted with this message:
       </p>
-      <div id="whatIfList">
-        <!-- Dynamic steps -->
-      </div>
+      <div id="whatIfList"></div>
     </div>
 
-    <!-- Quarantine Governance Staging -->
+    <!-- Quarantine Governance -->
     <div class="card" id="quarantineCard" style="display:none;">
       <div class="card-title">Human-in-the-Loop Governance</div>
       <div class="gov-box">
@@ -792,9 +786,44 @@
 
   </section>
 
-  <!-- Toast Notification -->
   <div id="toast" class="toast">Reply copied to clipboard!</div>
 
+  <!-- Existing prototype JavaScript -->
   <script src="sidepanel.js"></script>
+
+  <!-- Additional isolated email input validation -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const emailInput = document.getElementById("rawEmailText");
+      const validationMessage = document.getElementById("emailValidation");
+
+      if (!emailInput || !validationMessage) return;
+
+      emailInput.addEventListener("input", () => {
+        const emailText = emailInput.value.trim();
+
+        if (!emailText) {
+          validationMessage.textContent =
+            "Accepted format: Raw email with headers and message body.";
+          validationMessage.style.color = "#94a3b8";
+          return;
+        }
+
+        const hasFrom = /^From:\s*.+/im.test(emailText);
+        const hasSubject = /^Subject:\s*.+/im.test(emailText);
+
+        if (hasFrom && hasSubject) {
+          validationMessage.textContent =
+            "✓ From and Subject headers detected. Ready for analysis.";
+          validationMessage.style.color = "#34d399";
+        } else {
+          validationMessage.textContent =
+            "⚠ From or Subject header not detected. Check the pasted email format.";
+          validationMessage.style.color = "#fbbf24";
+        }
+      });
+    });
+  </script>
+
 </body>
 </html>
