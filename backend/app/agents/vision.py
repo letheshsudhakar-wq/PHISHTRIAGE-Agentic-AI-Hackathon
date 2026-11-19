@@ -248,3 +248,29 @@ async def analyze_vision(
             raw_notes=f"Vision analysis error: {str(exc)}",
             confidence_score=0.0,
         )
+
+
+async def run_vision_agent(parsed_email: object) -> Optional[AgentResult]:
+    """Adapter for orchestrator and API routes calling run_vision_agent(parsed_email)."""
+    images = []
+    if hasattr(parsed_email, "inline_images") and parsed_email.inline_images:
+        for img in parsed_email.inline_images:
+            if isinstance(img, dict):
+                raw = img.get("data") or img.get("payload") or b""
+                if isinstance(raw, str):
+                    try:
+                        import base64
+                        raw = base64.b64decode(raw)
+                    except Exception:
+                        raw = raw.encode()
+                if raw:
+                    images.append(raw)
+            elif isinstance(img, (bytes, bytearray)):
+                images.append(bytes(img))
+
+    if not images:
+        return None
+
+    body_text = getattr(parsed_email, "body_text", "") or ""
+    return await analyze_vision(images=images, screenshots=[], body_text=body_text)
+

@@ -255,7 +255,10 @@ def test_high_risk_phishing_stages_pending_proposal_in_queue(client: TestClient)
 def test_queue_approval_validation_and_success(client: TestClient):
     """POST /queue/{proposal_id}/approve fails with 400 when analyst_id is blank and succeeds with APPROVED."""
     # Create a proposal via analysis
-    res = client.post("/analyze", data={"raw_eml": "Subject: Test Phish\n\nLogin now"})
+    res = client.post(
+        "/analyze",
+        data={"raw_eml": "From: security-alert@micros0ft-support.com\nSubject: Test Phish\n\nLogin now"},
+    )
     case_id = res.json()["case_id"]
     case_data = client.get(f"/cases/{case_id}").json()
     prop_id = case_data["quarantine_proposal"]["proposal_id"]
@@ -287,7 +290,10 @@ def test_queue_approval_validation_and_success(client: TestClient):
 
 def test_queue_rejection_validation_and_success(client: TestClient):
     """POST /queue/{proposal_id}/reject fails with 400 when blank and succeeds with REJECTED."""
-    res = client.post("/analyze", data={"raw_eml": "Subject: Reject Test\n\nVerify"})
+    res = client.post(
+        "/analyze",
+        data={"raw_eml": "From: security-alert@micros0ft-support.com\nSubject: Reject Test\n\nVerify"},
+    )
     case_id = res.json()["case_id"]
     case_data = client.get(f"/cases/{case_id}").json()
     prop_id = case_data["quarantine_proposal"]["proposal_id"]
@@ -310,7 +316,10 @@ def test_queue_rejection_validation_and_success(client: TestClient):
 
 def test_cases_chat_copilot_grounded_response(client: TestClient):
     """POST /cases/{case_id}/chat returns grounded responses strictly from case details."""
-    res = client.post("/analyze", data={"raw_eml": "Subject: Urgent Wire Transfer\n\nLogin here"})
+    res = client.post(
+        "/analyze",
+        data={"raw_eml": "From: security-alert@micros0ft-support.com\nSubject: Urgent Wire Transfer\n\nLogin here"},
+    )
     case_id = res.json()["case_id"]
 
     # 1. Ask about suspicious links / URLs

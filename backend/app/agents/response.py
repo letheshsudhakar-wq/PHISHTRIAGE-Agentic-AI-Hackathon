@@ -469,3 +469,35 @@ async def answer_case_question(case_data: dict, user_message: str) -> str:
             f"Automated Co-Pilot query encountered an issue ({str(exc)}). "
             f"Primary indicators: {', '.join(i.get('title', i.get('id', '')) for i in indicators[:3])}."
         )
+
+
+async def generate_user_outputs(
+    verdict: Verdict,
+    agent_results: List[Any],
+    parsed_email: Any,
+) -> dict:
+    """Adapter for orchestrator and API routes calling generate_user_outputs(verdict, agent_results, parsed_email)."""
+    calibrated_indicators = verdict.primary_indicators
+    body_text = getattr(parsed_email, "body_text", "") or ""
+    metadata = {
+        "sender": getattr(parsed_email, "sender", "Unknown"),
+        "subject": getattr(parsed_email, "subject", "No Subject"),
+        "recipient": "employee@enterprise.corp",
+        "urls": [l.get("url") for l in getattr(parsed_email, "links", []) if isinstance(l, dict) and l.get("url")],
+    }
+    res = await generate_response(
+        case_id=verdict.case_id,
+        verdict=verdict,
+        calibrated_indicators=calibrated_indicators,
+        sanitized_body=body_text,
+        metadata=metadata,
+    )
+    return {
+        "reporter_reply_draft": res.get("reporter_reply_draft"),
+        "what_if_simulation": res.get("what_if_simulation"),
+        "limitations": [
+            "Zero-day payload scanning relies on isolated multi-agent static heuristics.",
+            "Visual evaluation grounded in Gemini 2.5 Flash multimodal inspection.",
+        ],
+    }
+

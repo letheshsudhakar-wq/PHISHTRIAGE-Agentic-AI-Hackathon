@@ -186,3 +186,31 @@ async def run_critic(
         tags,
         sanitized_body,
     )
+
+
+async def run_critic_agent(
+    all_indicators: List[Indicator],
+    agent_results: List[AgentResult],
+    raw_email_data: object = None,
+) -> Tuple[List[Indicator], bool]:
+    """Adapter for orchestrator and API routes calling run_critic_agent(all_indicators, agent_results)."""
+    forensic_res = next((r for r in agent_results if getattr(r, "agent_name", "") == "Forensic"), None)
+    vision_res = next((r for r in agent_results if getattr(r, "agent_name", "") == "Vision"), None) or AgentResult(
+        agent_name="Vision", execution_time_ms=0, indicators=[], confidence_score=1.0
+    )
+
+    forensic_indicators = forensic_res.indicators if forensic_res else [i for i in all_indicators if getattr(i, "agent", "") == "Forensic"]
+
+    email_data = raw_email_data if isinstance(raw_email_data, dict) else {
+        "subject": "",
+        "body": " ".join(getattr(i, "evidence", "") for i in all_indicators),
+        "html": "",
+    }
+
+    _, calibrated_indicators, critic_adjusted, _, _ = await run_critic(
+        raw_email_data=email_data,
+        forensic_indicators=forensic_indicators,
+        vision_result=vision_res,
+    )
+    return calibrated_indicators, critic_adjusted
+
