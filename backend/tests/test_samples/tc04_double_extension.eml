@@ -1,0 +1,25 @@
+From: "Accounts Payable" <invoices@vendor-billing-desk.org>
+To: accounts@enterprise.corp
+Subject: OVERDUE: Q3 Fiscal Audit Report & Outstanding Remittance
+Date: Wed, 18 Nov 2026 14:45:00 +0000
+Message-ID: <tc04-doubleext@vendor-billing-desk.org>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_Part_TC04_Boundary"
+
+------=_Part_TC04_Boundary
+Content-Type: text/plain; charset="UTF-8"
+
+Please find the attached quarterly fiscal audit and invoice statement.
+Prompt settlement is required to prevent collection proceedings.
+
+Regards,
+Billing & Remittance Operations
+
+------=_Part_TC04_Boundary
+Content-Type: application/octet-stream; name="Q3_Financial_Report.pdf.exe"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="Q3_Financial_Report.pdf.exe"
+
+TVqQAAMAAAAEAAAA//8AALgAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAA4fug4AtAnNIbgBTM0hVGhpcyBwcm9ncmFtIGNhbm5vdCBiZSBydW4gaW4gRE9TIG1vZGUuDQ0KJAAAAAAAAAA=
+
+------=_Part_TC04_Boundary--

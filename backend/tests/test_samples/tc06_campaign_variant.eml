@@ -1,0 +1,17 @@
+From: "HR Benefits & Payroll" <payroll-notifications@adp-workplace-support.com>
+To: staff@enterprise.corp
+Subject: Direct Deposit Account Suspension Notice
+Date: Wed, 18 Nov 2026 16:15:00 +0000
+Message-ID: <tc06-campaign@adp-workplace-support.com>
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+Authentication-Results: mx.enterprise.corp; spf=softfail; dkim=fail
+
+<html>
+<body>
+<h3>Urgent: Direct Deposit Discrepancy</h3>
+<p>An electronic payroll disbursement error was detected for your account. Funds will be held unless verified within 12 hours.</p>
+<p><a href="http://adp-payroll-verify-portal.net/login">Update Banking Information</a></p>
+<p>ADP Automated Payroll Services</p>
+</body>
+</html>
