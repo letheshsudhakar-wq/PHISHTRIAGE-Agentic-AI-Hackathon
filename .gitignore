@@ -2,11 +2,34 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.so
+
+# Local configuration and credentials
 .env
-.venv
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*credentials*.json
+*service-account*.json
+secrets/
+
+# Virtual environments
+.venv/
 venv/
 ENV/
+env/
+
+# Test/build artifacts
 .pytest_cache/
 .coverage
 htmlcov/
 *.log
+
+# Local databases and generated data
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-*
+*.db-*

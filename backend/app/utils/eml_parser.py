@@ -2,10 +2,15 @@ import base64
 from email import policy
 from email.parser import BytesParser
 import hashlib
-from typing import Any, Dict, List, Optional, Tuple
+import re
+from typing import Dict, List, Optional
 from bs4 import BeautifulSoup
 
 from app.models.schemas import ParsedEmail
+
+
+_URL_PATTERN = re.compile(r"https?://[^\s<>\"']+", re.IGNORECASE)
+_URL_TRAILING_PUNCTUATION = ".,;:!?)]}"
 
 
 def parse_eml(raw: bytes) -> ParsedEmail:
@@ -16,18 +21,15 @@ def parse_eml(raw: bytes) -> ParsedEmail:
     if not isinstance(raw, (bytes, bytearray)):
         raw = b""
 
-    # Parse raw bytes using Python's modern standard email policy
     try:
         msg = BytesParser(policy=policy.default).parsebytes(raw)
     except Exception:
-        # Fallback to an empty message if parsing completely fails
         msg = BytesParser(policy=policy.default).parsebytes(b"")
 
     def get_single_header(name: str) -> Optional[str]:
         val = msg.get(name)
         return str(val).strip() if val is not None else None
 
-    # Header fields
     message_id = get_single_header("Message-ID")
     from_header = get_single_header("From")
     sender = from_header if from_header is not None else ""
@@ -36,10 +38,9 @@ def parse_eml(raw: bytes) -> ParsedEmail:
     subject_header = get_single_header("Subject")
     subject = subject_header if subject_header is not None else ""
 
-    # Build complete raw headers string so forensic checks can inspect all headers reliably
     raw_header_lines: List[str] = []
-    for k, v in msg.items():
-        raw_header_lines.append(f"{k}: {v}")
+    for key, value in msg.items():
+        raw_header_lines.append(f"{key}: {value}")
     headers_raw = "\r\n".join(raw_header_lines)
 
     text_parts: List[str] = []
@@ -47,7 +48,6 @@ def parse_eml(raw: bytes) -> ParsedEmail:
     attachments: List[Dict[str, str]] = []
     inline_images: List[Dict[str, str]] = []
 
-    # Walk through all MIME parts
     for part in msg.walk():
         if part.is_multipart():
             continue
@@ -56,37 +56,32 @@ def parse_eml(raw: bytes) -> ParsedEmail:
         content_type = part.get_content_type()
         filename = part.get_filename()
 
-        # Handle explicit attachments
         if content_disposition == "attachment" or filename:
             try:
                 payload = part.get_payload(decode=True) or b""
             except Exception:
                 payload = b""
 
-            sha256_hash = hashlib.sha256(payload).hexdigest()
             attachments.append({
                 "filename": filename or "untitled",
                 "content_type": content_type or "application/octet-stream",
                 "size": str(len(payload)),
-                "sha256": sha256_hash,
+                "sha256": hashlib.sha256(payload).hexdigest(),
             })
             continue
 
-        # Handle inline images without discarding image bytes
         if content_type.startswith("image/"):
             try:
                 payload = part.get_payload(decode=True) or b""
             except Exception:
                 payload = b""
 
-            b64_data = base64.b64encode(payload).decode("ascii")
             inline_images.append({
                 "content_type": content_type,
-                "data": b64_data,
+                "data": base64.b64encode(payload).decode("ascii"),
             })
             continue
 
-        # Handle text and html body content
         if content_type == "text/plain":
             try:
                 payload = part.get_content()
@@ -108,27 +103,33 @@ def parse_eml(raw: bytes) -> ParsedEmail:
 
     text_body = "".join(text_parts)
     html_body = "".join(html_parts)
-
-    # Use text_body or fall back to html_body
     body_text = text_body if text_body else html_body
 
-    # Extract links from HTML using BeautifulSoup
     links: List[Dict[str, str]] = []
     if html_body:
         try:
             soup = BeautifulSoup(html_body, "html.parser")
-            for a_tag in soup.find_all("a"):
-                href = a_tag.get("href")
+            for anchor in soup.find_all("a"):
+                href = anchor.get("href")
                 if href is not None:
-                    visible_text = a_tag.get_text()
+                    visible_text = str(anchor.get_text())
                     links.append({
-                        "visible_text": str(visible_text),
+                        "visible_text": visible_text,
                         "href": str(href),
-                        "text": str(visible_text),
+                        "text": visible_text,
                         "url": str(href),
                     })
         except Exception:
             pass
+
+    # Plain-text messages frequently contain URLs without HTML anchors. Include
+    # those destinations so the forensic checks and UI analyze actual content.
+    known_hrefs = {item.get("href") for item in links}
+    for match in _URL_PATTERN.finditer(body_text):
+        url = match.group(0).rstrip(_URL_TRAILING_PUNCTUATION)
+        if url and url not in known_hrefs:
+            links.append({"visible_text": url, "href": url, "text": url, "url": url})
+            known_hrefs.add(url)
 
     return ParsedEmail(
         message_id=message_id,
